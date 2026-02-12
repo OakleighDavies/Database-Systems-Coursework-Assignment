@@ -1,9 +1,17 @@
 -- Copyright (c) 2025 Oakleigh Davies. All rights reserved.
-
--- This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
--- "This work", this ONLY applies to the work not referenced in any way, and solely created by the copyright holder. Referenced work is referenced below, respective licensing and rights reserved by the indeviduals/companies respectively.
--- You should have received a copy of the license along with this work. 
--- If not, see <https://creativecommons.org/licenses/by-nc/4.0/>.
+--
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 -- foreign & primary key from lecture slides
 -- UNIQUE from the essentials textbook reading - page 242 chapter 7 - Thomas Connolly - PUBLISHER Pearson Education UK - 2015-01-12 - eidition 6 - 2025 Nov 26 - https://ebookcentral.proquest.com/lib/keeleuni/reader.action?docID=5136720&c=UERG&ppg=244
@@ -23,7 +31,7 @@ CREATE TABLE Addressing
     county VARCHAR2(50) NOT NULL,
     postcode VARCHAR2(8) CHECK ( -- to allow for blank space in the middle, if applicable
         REGEXP_LIKE(postcode, '^[A-Za-z]{1,2}[0-9]{1,2}[A-Za-z]{0,1}\s?[0-9]{1}[A-Za-z]{2}$') -- 1 or 2 characters, 1 or 2 digits, if not 2 digits may have 1 extra character, 1 number, then 2 digits
-                                                                                              -- "Regular Expression syntax"
+                                                                                               -- "Regular Expression syntax"
     ) NOT NULL,
     PRIMARY KEY (addressID)
 );
@@ -246,4 +254,3 @@ CREATE OR REPLACE TRIGGER dateCheckPayment -- to prevent bad dates
         RAISE_APPLICATION_ERROR(-20001, 'Expiry date cannot be before: ' || TO_CHAR(SYSDATE, 'DD-MM-YY')); -- raising manual error
     END IF;
 END;
-/
