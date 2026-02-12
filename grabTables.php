@@ -58,7 +58,7 @@ along with this program.  If not, see <https://www.gnu.org>.
         }
 
         function fetchColumnHead ($tableToUse, $columnToUse, $authMarker) {
-            if ($authMarker && ($Connection = oci_connect("x9b80", "x9b80"))) {
+            if ($authMarker && ($Connection = oci_connect("REDACTED", "REDACTED"))) {
                 $sql = "SELECT * FROM $tableToUse"; # change per table
                 $Statement = oci_parse($Connection, $sql);
                 oci_execute($Statement);
