@@ -31,7 +31,7 @@ along with this program.  If not, see <https://www.gnu.org>.
                 <h5><i>Table Update</i></h5>
             </figure>
             <?php
-                if (oci_connect("x9b80", "x9b80")) {
+                if (oci_connect("REDACTED", "REDACTED")) {
                     print "<section>
                                 <p class='p-3 ms-3 me-3 text-success-emphasis bg-success-subtle border border-success rounded-3 d-flex'>
                                     <i>Connection Successful!</i>
@@ -77,7 +77,7 @@ along with this program.  If not, see <https://www.gnu.org>.
                             <li><button class="dropdown-item" type="submit" name="table" value="ProductQuantityOnHand">Quantity On Hand</button></li>
                         </ul>
                     </form>
-                    <button type="button" onclick="window.location.href='https://teach.cs.keele.ac.uk/users/x9b80/databaseSystems/index.php';" class="btn btn-dark ps-3 pe-3 ms-3 me-3 rounded-2">Table Viewing Mode</button>
+                    <button type="button" onclick="window.location.href='https://teach.cs.keele.ac.uk/users/REDACTED/databaseSystems/index.php';" class="btn btn-dark ps-3 pe-3 ms-3 me-3 rounded-2">Table Viewing Mode</button>
                 </div>
                 <?php
                     $tableToUse = $_POST['table'] ?? 'Store';
