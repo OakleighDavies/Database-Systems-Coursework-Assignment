@@ -98,7 +98,7 @@ along with this program.  If not, see <https://www.gnu.org>.
 
         function fetchTable ($tableToUse, $columnToUse, $columnSearch, $authMarker) {
             // Program to read the contents of ITEM and display them in a table
-            if ($Connection = oci_connect("x9b80", "x9b80")) {
+            if ($Connection = oci_connect("REDACTED", "REDACTED")) {
                 if (!empty($columnToUse) && !empty($columnSearch)) {
                     $sql = "SELECT * FROM {$tableToUse} WHERE {$columnToUse} = :search_value";
                     $Statement = oci_parse($Connection, $sql);
