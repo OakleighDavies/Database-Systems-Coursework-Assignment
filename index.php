@@ -1,17 +1,20 @@
-# Copyright (c) 2025 Oakleigh Davies. All rights reserved.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+<!--
+Copyright (C) 2025 Oakleigh Davies.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org>.
+-->
+
 
 <!DOCTYPE html>
 <html data-bs-theme="light">
@@ -63,7 +66,7 @@
                             <li><button class="dropdown-item" type="submit" name="table" value="Department">Department</button></li>
                             <li><button class="dropdown-item" type="submit" name="table" value="Employee">Employee</button></li>
                             <li><button class="dropdown-item" type="submit" name="table" value="Invoice">Invoice</button></li>
-                            <li><button class="dropdown-item" type="submit" name="table" value="Order">Order</button></li>
+                            <li><button class="dropdown-item" type="submit" name="table" value='"Order"'>Order</button></li>
                             <li><button class="dropdown-item" type="submit" name="table" value="Payment">Payment</button></li>
                             <li><button class="dropdown-item" type="submit" name="table" value="Product">Product</button></li>
                             <li><button class="dropdown-item" type="submit" name="table" value="ProductQuantity">Product Quantity</button></li>
@@ -77,8 +80,7 @@
                 </div>
                 <?php
                     $tableToUse = $_POST['table'] ?? 'Store';
-                    echo "<p class='ps-2 ms-2 me-3 mb-0 pt-2'>Current Table: <i><b>'$tableToUse'</b></i>.
-</p>";
+                    echo "<p class='ps-2 ms-2 me-3 mb-0 pt-2'>Current Table: <i><b>'$tableToUse'</b></i>.\n</p>";
                 ?>
             </div>
             <div class="d-flex align-items-center my-3">
