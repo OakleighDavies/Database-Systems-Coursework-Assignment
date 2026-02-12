@@ -60,7 +60,7 @@ along with this program.  If not, see <https://www.gnu.org>.
         }
 
         function fetchColumnHead($tableToUse, $primaryKeyToUse, $columToUse, $columnUpdateValue) {
-            if ($Connection = oci_connect("x9b80", "x9b80")) {
+            if ($Connection = oci_connect("REDACTED", "REDACTED")) {
                 $sql = "SELECT * FROM " . $tableToUse;
                 $Statement = oci_parse($Connection, $sql);
                 oci_execute($Statement);
@@ -186,7 +186,7 @@ along with this program.  If not, see <https://www.gnu.org>.
         function fetchTable($tableToUse, $primaryKeyToUse, $columToUse, $columnUpdateValue) {
             // var_dump($tableToUse, $primaryKeyToUse, $columToUse, $columnUpdateValue); // for testing purposes only
 
-            if ($Connection = oci_connect("x9b80", "x9b80")) {
+            if ($Connection = oci_connect("REDACTED", "REDACTED")) {
 
                 if (!empty($columnUpdateValue) && !empty($primaryKeyToUse)) {
 
