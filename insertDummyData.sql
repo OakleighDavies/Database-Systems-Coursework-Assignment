@@ -1,0 +1,708 @@
+-- Copyright (c) 2025 Oakleigh Davies. All rights reserved.
+
+-- This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
+-- "This work", this ONLY applies to the work not referenced in any way, and solely created by the copyright holder. Referenced work is referenced below, respective licensing and rights reserved by the indeviduals/companies respectively.
+-- You should have received a copy of the license along with this work. 
+-- If not, see <https://creativecommons.org/licenses/by-nc/4.0/>.
+
+
+-- ALL DATA HERE IS FAKE, AND NOT LINKED TO ANYONE, APPART FROM MYSELF.
+-- SOME OF WHICH HAS BEEN GENERATED USING GENAI (ONLY DATA GENERATED, FUNCTIONS/PROCEEDURES WRITTEN BY ME)
+
+-- address's INSERTS
+DECLARE
+    TYPE addressRecord IS RECORD ( -- constructing record based on Addressing table collumns and types
+        unitNameOrNo VARCHAR2(50),
+        street VARCHAR2(50),
+        city VARCHAR2(50),
+        county VARCHAR(50),
+        postcode VARCHAR2(8)
+    );
+    TYPE addressRecTable IS TABLE OF addressRecord; -- table of each row/record for Addressing
+    addressesToAdd addressRecTable := addressRecTable( -- records, to add into its table, the table then equals itself after inserting
+        -- addresses for stores 1st to 4th
+        addressRecord('Minton House', 'London Road', 'Stoke-On-Trent', 'Staffordshire', 'ST4 7QD'),
+        addressRecord('-', 'Liverpool Road', 'Newcastle Under Lyme', 'Staffordshire', 'ST5 2AF'),
+        addressRecord('-', 'Dymchurch Road', 'New Romney', 'Kent', 'TN28 8GU'),
+        addressRecord('-', 'Paddington Drive', 'Bridgemead', 'Swindon', 'SN5 7AA'),
+
+        -- (billing) addresses 5th to 10th
+        addressRecord('28 Ladysmith Centre', '-', 'Ashton-Under-Lyne', '-', 'OL6 7JQ'),
+        addressRecord('59', 'Stafford Street', 'Stoke-On-Trent', 'Staffordshire', 'ST1 1SA'),
+        addressRecord('12', 'Broad Street', '-', 'Nottingham', 'NG1 3AL'),
+        addressRecord('1', 'The Magic Roundabout', '-', 'Swindon', 'SN1 2EA'), -- this is a real place, check it out!
+        addressRecord('Dungeness Beach', '-', 'Lydd', 'Kent', 'TN29 9NB'),
+        addressRecord('Trawsfynydd nuclear power station', 'Snowdonia National Park', 'Blaenau Ffestiniog', 'Cymru', 'LL41 0XX'), -- GBs only inlad powerstation!
+
+        -- (delivery) addresses 11th to 15th
+        addressRecord('1', 'Ashfields New Road', 'Newcastle-Under-Lyme', 'Staffordshire', 'ST5 2DH'),
+        addressRecord('2', 'Ashfields New Road', 'Newcastle-Under-Lyme', 'Staffordshire', 'ST5 2DH'),
+        addressRecord('3', 'Ashfields New Road', 'Newcastle-Under-Lyme', 'Staffordshire', 'ST5 2DH'),
+        addressRecord('4', 'Ashfields New Road', 'Newcastle-Under-Lyme', 'Staffordshire', 'ST5 2DH'),
+        addressRecord('5', 'Ashfields New Road', 'Newcastle-Under-Lyme', 'Staffordshire', 'ST5 2DH')
+    );
+    -- to add all the primary keys to its own "table"
+    TYPE addrID IS TABLE OF NUMBER;
+    addressIDs addrID; -- each address ID into its own table of them all
+BEGIN
+    FORALL i IN 1..addressesToAdd.COUNT -- for i in range from 1 to the amount of records to add
+        -- similar to simple insert-return statements
+        INSERT INTO Addressing (unitNameOrNo, street, city, county, postcode)
+        VALUES (addressesToAdd(i).unitNameOrNo, addressesToAdd(i).street, addressesToAdd(i).city, addressesToAdd(i).county, addressesToAdd(i).postcode)
+        RETURNING addressID BULK COLLECT INTO addressIDs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+-- supplier data
+DECLARE
+    TYPE suppRecord IS RECORD (
+        supplierName VARCHAR2(30)
+    );
+
+    TYPE suppRecTable IS TABLE OF suppRecord;
+    suppsToAdd suppRecTable := suppRecTable();
+BEGIN
+    FOR i IN 1..10 LOOP
+        suppsToAdd.EXTEND;
+        suppsToAdd(i).supplierName := 'Supplier_' || i;
+    END LOOP;
+
+    FOR i IN 1..suppsToAdd.COUNT LOOP
+        INSERT INTO Supplier (supplierName)
+        VALUES (suppsToAdd(i).supplierName);
+    END LOOP;
+END;
+/
+
+
+-- stores' INSERTS, and linkages to addresses
+DECLARE
+    TYPE storeRecord IS RECORD ( -- constructing record based on Store table collumns and types
+        storeAddressID NUMBER,
+        storeName VARCHAR(30),
+        storePhoneNo VARCHAR(15)
+    );
+    TYPE storeRecTable IS TABLE OF storeRecord; -- table of each row/record for "Order"
+    storesToAdd storeRecTable := storeRecTable ( -- records, to add into its table, the table then equals itself after inserting
+        storeRecord(1, 'IDEA_Stoke-on-Trent', '+44 1632 960001'),
+        storeRecord(2, 'IDEA_Newcastle_Under_Lyme', '441632960002'),
+        storeRecord(3, 'IDEA_New_Romney', '+441632960100'),
+        storeRecord(4, 'IDEA_Bridgemead', '01632 960103')
+    );
+    -- to add all the primary keys to its own "table"
+    TYPE storeID IS TABLE OF NUMBER;
+    storeIDs storeID; -- each address ID into its own table of them all
+BEGIN
+    FORALL i IN 1..storesToAdd.COUNT -- for i in range from 1 to the amount of records to add
+        -- similar to simple insert-return statements
+        INSERT INTO Store (storeAddressID, storeName, storePhoneNo)
+        VALUES (storesToAdd(i).storeAddressID, storesToAdd(i).storeName, storesToAdd(i).storePhoneNo)
+        RETURNING storeAddressID BULK COLLECT INTO storeIDs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+
+-- customer data
+DECLARE
+    TYPE customerRecord IS RECORD (
+        customerFName VARCHAR2(30),
+        customerLName VARCHAR2(30),
+        customerPhoneNo VARCHAR2(20),
+        customerEmail VARCHAR2(100)
+    );
+
+    TYPE customerTable IS TABLE OF customerRecord;
+    customersToAdd customerTable := customerTable(
+        customerRecord('Johnathan', 'Nevile', '07700 900653', 'jo.nevile@email.co.uk'),
+        customerRecord('Nathan', 'Smith', '07700900987', 'nathan.smith@thisemail.com'),
+        customerRecord('Jack', 'Daniels', '+447700 900014', 'JDnCoke@jackdaniels.org'),
+        customerRecord('Jackie', 'Thompson', '+44 7700 900395', 'j.thompson@keele.ac.uk'),
+        customerRecord('Joe', 'Dobbins', '447700900120', 'dobbie@mail.com'),
+        customerRecord('Jude', 'Donohue', '07700900111', 'donohue.j@address.com'), -- post this line, extra recirds boosted by generation
+        customerRecord('Alice', 'Roberts', '07700 900765', 'alice.roberts@mailservice.co.uk'),
+        customerRecord('Tom', 'Harrison', '+44 7700 900876', 'tom.harrison@myemail.org'),
+        customerRecord('Emily', 'Harrison', '07700 901234', 'emily.harrison@mailbox.co.uk'),
+        customerRecord('Oliver', 'Grant', '+44 7700 902345', 'oliver.grant@domain.org'),
+        customerRecord('Sophia', 'Turner', '447700903456', 'sophia.turner@webmail.com'),
+        customerRecord('Liam', 'Walker', '07700 904567', 'liam.walker@company.net'),
+        customerRecord('Amelia', 'Brooks', '+447700905678', 'amelia.brooks@uni.ac.uk'),
+        customerRecord('James', 'Fletcher', '07700 906789', 'james.fletcher@service.co.uk'),
+        customerRecord('Charlotte', 'Murray', '+44 7700 907890', 'charlotte.murray@personal.org'),
+        customerRecord('Henry', 'Collins', '447700908901', 'henry.collins@randommail.com'),
+        customerRecord('Isabella', 'Reed', '07700 909012', 'isabella.reed@school.edu'),
+        customerRecord('Ethan', 'Parker', '+447700910123', 'ethan.parker@workplace.net')
+    );
+
+BEGIN
+    FORALL i IN 1..customersToAdd.COUNT
+        INSERT INTO Customer (customerFName, customerLName, customerPhoneNo, customerEmail)
+        VALUES (customersToAdd(i).customerFName, customersToAdd(i).customerLName, customersToAdd(i).customerPhoneNo, customersToAdd(i).customerEmail
+        );
+END;
+/
+
+
+-- employee's INSERTS (also into Collection and Delivery)
+DECLARE
+    TYPE employeeRecord IS RECORD (
+        storeNo NUMBER,
+        employeeFName VARCHAR2(30),
+        employeeLName VARCHAR2(30),
+        employeeEmail VARCHAR2(100),
+        employeeNINo VARCHAR2(13),
+        employeeDOB DATE,
+        employeeSex VARCHAR2(6),
+        employeeSalary NUMBER(10,2),
+        employeeStartDate DATE
+    );
+
+    TYPE employeeTable IS TABLE OF employeeRecord;
+    employeesToAdd employeeTable := employeeTable(
+        -- fake email strings, NI Number strings, DOBs, sex, and start dates generated by Co-Pilot
+        -- Store 1 1-8
+        employeeRecord(1, 'John', 'Doe', 'john.doe@company.com', 'AB12 34 56 C', TO_DATE('15/03/1985','DD/MM/YYYY'), 'Male', 28500.00, TO_DATE('01/06/2020','DD/MM/YYYY')),
+        employeeRecord(1, 'Steph', 'Brown', 'steph.brown@workmail.org', 'CD34 56 78 D', TO_DATE('22/07/1990','DD/MM/YYYY'), 'Female', 31000.00, TO_DATE('15/09/2019','DD/MM/YYYY')),
+        employeeRecord(1, 'Oakley', 'Davies', 'oakley_davies@otheremail.co.uk', 'EF12 34 56 E', TO_DATE('10/11/1988','DD/MM/YYYY'), 'Male', 33000.00, TO_DATE('10/01/2021','DD/MM/YYYY')),
+        employeeRecord(1, 'Matt', 'Bingham', 'matt.bingham123@company.net', 'GH56 78 90 G', TO_DATE('05/05/1982','DD/MM/YYYY'), 'Male', 29500.00, TO_DATE('20/03/2018','DD/MM/YYYY')),
+        employeeRecord(1, 'Sarah', 'Green', 's.green@corporate.co.uk', 'IJ12 34 56 I', TO_DATE('12/02/1993','DD/MM/YYYY'), 'Female', 34000.00, TO_DATE('01/07/2022','DD/MM/YYYY')),
+        employeeRecord(1, 'James', 'White', 'james.white@businessmail.com', 'KL34 56 78 K', TO_DATE('30/08/1987','DD/MM/YYYY'), 'Male', 36000.00, TO_DATE('15/05/2017','DD/MM/YYYY')),
+        employeeRecord(1, 'Emily', 'Stone', 'emily.stone@workplace.org', 'MN12 34 56 M', TO_DATE('18/09/1995','DD/MM/YYYY'), 'Female', 32500.00, TO_DATE('10/11/2020','DD/MM/YYYY')),
+        employeeRecord(1, 'Chris', 'Taylor', 'chris.taylor@company.co.uk', 'OP56 78 90 O', TO_DATE('07/06/1984','DD/MM/YYYY'), 'Male', 31000.00, TO_DATE('05/04/2019','DD/MM/YYYY')),
+
+        -- Store 2 9-16
+        employeeRecord(2, 'Matt', 'Johnson', 'm.johnson@corporate.co.uk', 'QR12 34 56 Q', TO_DATE('14/04/1986','DD/MM/YYYY'), 'Male', 30000.00, TO_DATE('01/02/2020','DD/MM/YYYY')),
+        employeeRecord(2, 'Jack', 'Black', 'jack.black@businessmail.com', 'ST34 56 78 S', TO_DATE('21/01/1991','DD/MM/YYYY'), 'Male', 31500.00, TO_DATE('12/08/2018','DD/MM/YYYY')),
+        employeeRecord(2, 'Dwane', 'Johnson', 'dwane.j@workplace.org', 'UV12 34 56 U', TO_DATE('09/03/1980','DD/MM/YYYY'), 'Male', 40000.00, TO_DATE('20/06/2016','DD/MM/YYYY')),
+        employeeRecord(2, 'Mary', 'Jane', 'mary.jane@company.co.uk', 'WX56 78 90 W', TO_DATE('25/12/1994','DD/MM/YYYY'), 'Female', 29000.00, TO_DATE('15/09/2021','DD/MM/YYYY')),
+        employeeRecord(2, 'Oliver', 'King', 'oliver.king@othermail.com', 'YZ12 34 56 Y', TO_DATE('03/07/1989','DD/MM/YYYY'), 'Male', 35000.00, TO_DATE('10/03/2019','DD/MM/YYYY')),
+        employeeRecord(2, 'Sophia', 'Brown', 'sophia.brown@corporate.net', 'AB78 90 12 A', TO_DATE('16/11/1992','DD/MM/YYYY'), 'Female', 33000.00, TO_DATE('01/05/2020','DD/MM/YYYY')),
+        employeeRecord(2, 'Lucas', 'Gray', 'lucas.gray@company.co.uk', 'CD34 12 56 C', TO_DATE('28/02/1985','DD/MM/YYYY'), 'Male', 37000.00, TO_DATE('20/07/2017','DD/MM/YYYY')),
+        employeeRecord(2, 'Ella', 'Moore', 'ella.moore@workmail.org', 'EF56 78 34 E', TO_DATE('11/10/1996','DD/MM/YYYY'), 'Female', 28000.00, TO_DATE('05/12/2022','DD/MM/YYYY')),
+
+        -- Store 3 17-24
+        employeeRecord(3, 'Jane', 'Doe', 'j.doe@otheremail.co.uk', 'GH12 34 56 G', TO_DATE('19/05/1983','DD/MM/YYYY'), 'Female', 31000.00, TO_DATE('01/03/2018','DD/MM/YYYY')),
+        employeeRecord(3, 'Sophie', 'Cook', 'sophie.cook@company.com', 'IJ34 56 78 I', TO_DATE('04/09/1990','DD/MM/YYYY'), 'Female', 29500.00, TO_DATE('15/06/2019','DD/MM/YYYY')),
+        employeeRecord(3, 'Stella', 'Davies', 'stella.davies@workmail.net', 'KL12 34 56 K', TO_DATE('27/07/1988','DD/MM/YYYY'), 'Female', 32000.00, TO_DATE('10/10/2020','DD/MM/YYYY')),
+        employeeRecord(3, 'Hannah', 'Cook', 'hannah.c@businessmail.co.uk', 'MN56 78 90 M', TO_DATE('02/02/1993','DD/MM/YYYY'), 'Female', 34000.00, TO_DATE('05/05/2021','DD/MM/YYYY')),
+        employeeRecord(3, 'Daniel', 'Evans', 'dan.evans@corporate.co.uk', 'OP12 34 56 O', TO_DATE('13/08/1981','DD/MM/YYYY'), 'Male', 36000.00, TO_DATE('20/08/2017','DD/MM/YYYY')),
+        employeeRecord(3, 'Grace', 'Hill', 'grace.hill@company.org', 'QR34 56 78 Q', TO_DATE('08/04/1994','DD/MM/YYYY'), 'Female', 28000.00, TO_DATE('01/01/2022','DD/MM/YYYY')),
+        employeeRecord(3, 'Henry', 'Scott', 'henry.scott@othermail.com', 'ST12 34 56 S', TO_DATE('22/06/1986','DD/MM/YYYY'), 'Male', 35000.00, TO_DATE('15/09/2018','DD/MM/YYYY')),
+        employeeRecord(3, 'Isla', 'Young', 'isla.young@workplace.org', 'UV56 78 90 U', TO_DATE('30/03/1995','DD/MM/YYYY'), 'Female', 30000.00, TO_DATE('10/11/2020','DD/MM/YYYY')),
+
+        -- Store 4 25-32
+        employeeRecord(4, 'Elizibeth', 'Doe', 'elizibeth.doe@company.org', 'WX12 34 56 W', TO_DATE('17/01/1982','DD/MM/YYYY'), 'Female', 31000.00, TO_DATE('01/04/2019','DD/MM/YYYY')),
+        employeeRecord(4, 'Andy', 'Cook', 'andy.cook@othermail.com', 'YZ34 56 78 Y', TO_DATE('06/05/1987','DD/MM/YYYY'), 'Male', 33000.00, TO_DATE('15/07/2018','DD/MM/YYYY')),
+        employeeRecord(4, 'Andrew', 'Davies', 'andrew.davies@corporate.net', 'AB12 78 90 A', TO_DATE('29/09/1984','DD/MM/YYYY'), 'Male', 34000.00, TO_DATE('10/02/2020','DD/MM/YYYY')),
+        employeeRecord(4, 'Matthew', 'Cook', 'matthew.cook@company.co.uk', 'CD56 34 12 C', TO_DATE('12/12/1991','DD/MM/YYYY'), 'Male', 32000.00, TO_DATE('05/06/2021','DD/MM/YYYY')),
+        employeeRecord(4, 'George', 'Clark', 'george.clark@workmail.org', 'EF78 90 56 E', TO_DATE('03/03/1989','DD/MM/YYYY'), 'Male', 35000.00, TO_DATE('20/09/2017','DD/MM/YYYY')),
+        employeeRecord(4, 'Amelia', 'Lewis', 'amelia.lewis@businessmail.com', 'GH34 12 78 G', TO_DATE('15/07/1993','DD/MM/YYYY'), 'Female', 28000.00, TO_DATE('01/12/2022','DD/MM/YYYY')),
+        employeeRecord(4, 'Ethan', 'Walker', 'ethan.walker@corporate.co.uk', 'IJ56 78 34 I', TO_DATE('09/11/1985','DD/MM/YYYY'), 'Male', 36000.00, TO_DATE('10/03/2019','DD/MM/YYYY')),
+        employeeRecord(4, 'Mia', 'Hall', 'mia.hall@otheremail.co.uk', 'KL12 34 56 K', TO_DATE('25/08/1996','DD/MM/YYYY'), 'Female', 29500.00, TO_DATE('05/05/2021','DD/MM/YYYY'))
+    );
+
+BEGIN
+    FORALL i IN 1..employeesToAdd.COUNT
+        INSERT INTO Employee (storeNo, employeeFName, employeeLName, employeeEmail, employeeNINo, employeeDOB, employeeSex, employeeSalary, employeeStartDate)
+        VALUES (employeesToAdd(i).storeNo, employeesToAdd(i).employeeFName, employeesToAdd(i).employeeLName, employeesToAdd(i).employeeEmail, employeesToAdd(i).employeeNINo, employeesToAdd(i).employeeDOB, employeesToAdd(i).employeeSex, employeesToAdd(i).employeeSalary, employeesToAdd(i).employeeStartDate
+        );
+END;
+/
+
+-- department INSERTS
+-- product data -- taken reference from habitat.co.uk
+DECLARE
+    TYPE departmentRecord IS RECORD ( -- constructing record based on Department table collumns and types
+        departmentName VARCHAR2(30),
+        departmentDescription VARCHAR2(100)
+    );
+    TYPE departmentRecTable IS TABLE OF departmentRecord; -- table of each row/record for Addressing
+    departmentsToAdd departmentRecTable := departmentRecTable( -- records, to add into its table, the table then equals itself after inserting
+        departmentRecord('Christmas', 'Anything Christmas, from Trees, table linings, Wreaths, Lights, etc.'),
+        departmentRecord('Furniture', 'Living Room, Bedroom, Lounge, Office, Bathroom, Kids, etc.'),
+        departmentRecord('Lighting', 'Ceiling Lighting, Ambient/Mood Lighting, Wall Lighting, Bathroom, Kids, etc.'),
+        departmentRecord('Bedroom', 'Sheets, Pillows, Cushions, Deuvets, Blankets, Pillow cases, etc.'),
+        departmentRecord('Garden', 'Decking, Deck chairs, BBQs/Grills, Pets Furiture, Garden Accessories, etc.'),
+        departmentRecord('Electricals', 'Batteries, Battery Charging, Technology, Kitchen Applicances, etc.')
+    );
+    -- to add all the primary keys to its own "table"
+    TYPE deptID IS TABLE OF NUMBER;
+    deptIDs deptID; -- each address ID into its own table of them all
+BEGIN
+    FORALL i IN 1..departmentsToAdd.COUNT -- for i in range from 1 to the amount of records to add
+        -- similar to simple insert-return statements
+        INSERT INTO Department (departmentName, departmentDescription)
+        VALUES (departmentsToAdd(i).departmentName, departmentsToAdd(i).departmentDescription)
+        RETURNING departmentID BULK COLLECT INTO deptIDs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+
+-- product INSERTS
+-- product data -- taken reference from habitat.co.uk
+DECLARE
+    TYPE productRecord IS RECORD ( -- constructing record based on Product table collumns and types
+        departmentID NUMBER,
+        productName VARCHAR2(30),
+        price NUMBER(8, 2),
+        productDescription VARCHAR2(100)
+    );
+    TYPE productRecTable IS TABLE OF productRecord; -- table of each row/record for Addressing
+    productsToAdd productRecTable := productRecTable( -- records, to add into its table, the table then equals itself after inserting
+        -- all sample products generated using AI constructed from habitat.co.uk and
+        -- in constraints of "Department", and filling all paramaters for "Product",
+        -- prices are not to scale
+        -- duplicate names may exist as long as the product is overall different
+        productRecord(2, 'Office Desk', 557.09, 'Modern desk with storage drawers'),
+        productRecord(2, 'Oak Coffee Table', 227.48, 'Solid oak table for living room'),
+        productRecord(3, 'LED Floor Lamp', 174.87, 'Adjustable LED lamp for reading'),
+        productRecord(6, 'Portable Battery Pack', 798.78, '10,000mAh power bank for devices'),
+        productRecord(6, 'LED TV', 680.39, '42-inch Full HD LED television'),
+        productRecord(6, 'Smartphone Charger', 32.31, 'Fast-charging USB-C adapter'),
+        productRecord(2, 'Leather Sofa', 756.08, 'Premium 3-seater leather sofa'),
+        productRecord(1, 'LED String Lights', 910.08, 'Warm white lights for indoor use'),
+        productRecord(5, 'BBQ Grill', 508.57, 'Charcoal grill with adjustable vents'),
+        productRecord(2, 'Office Desk', 737.78, 'Modern desk with storage drawers'),
+        productRecord(1, 'LED String Lights', 290.25, 'Warm white lights for indoor use'),
+        productRecord(6, 'Electric Kettle', 315.67, '1.7L stainless steel kettle'),
+        productRecord(2, 'Oak Coffee Table', 616.26, 'Solid oak table for living room'),
+        productRecord(5, 'BBQ Grill', 953.14, 'Charcoal grill with adjustable vents'),
+        productRecord(5, 'Planter Set', 786.24, 'Set of 3 ceramic planters'),
+        productRecord(4, 'Blanket Throw', 245.56, 'Warm knitted throw for bed or sofa'),
+        productRecord(5, 'Deck Chair', 105.87, 'Foldable wooden deck chair'),
+        productRecord(1, 'Tree Ornaments Set', 853.02, 'Pack of 24 assorted ornaments'),
+        productRecord(1, 'Festive Table Runner', 284.85, 'Red and gold table runner for dining'),
+        productRecord(2, 'Leather Sofa', 263.02, 'Premium 3-seater leather sofa'),
+        productRecord(2, 'Oak Coffee Table', 916.65, 'Solid oak table for living room'),
+        productRecord(1, 'Artificial Christmas Tree', 372.21, '6ft green tree with realistic branches'),
+        productRecord(2, 'Bookshelf Unit', 728.31, 'Tall wooden bookshelf with 5 shelves'),
+        productRecord(4, 'Cotton Pillowcase Set', 974.45, 'Soft cotton pillowcases in white'),
+        productRecord(3, 'Wall Sconce', 273.42, 'Elegant wall-mounted light fixture'),
+        productRecord(1, 'Artificial Christmas Tree', 560.87, '6ft green tree with realistic branches'),
+        productRecord(2, 'Oak Coffee Table', 26.7, 'Solid oak table for living room'),
+        productRecord(2, 'Oak Coffee Table', 539.14, 'Solid oak table for living room'),
+        productRecord(4, 'Duvet Cover', 709.4, 'King-size duvet cover in grey'),
+        productRecord(5, 'Outdoor Lantern', 451.03, 'Solar-powered lantern for patio'),
+        productRecord(6, 'Portable Battery Pack', 196.56, '10,000mAh power bank for devices'),
+        productRecord(6, 'Electric Kettle', 613.83, '1.7L stainless steel kettle'),
+        productRecord(4, 'Memory Foam Pillow', 316.31, 'Ergonomic pillow for neck support'),
+        productRecord(2, 'Leather Sofa', 506.79, 'Premium 3-seater leather sofa'),
+        productRecord(3, 'Ceiling Pendant Light', 62.17, 'Modern pendant light with brass finish'),
+        productRecord(1, 'Artificial Christmas Tree', 204.16, '6ft green tree with realistic branches'),
+        productRecord(4, 'Duvet Cover', 558.69, 'King-size duvet cover in grey'),
+        productRecord(2, 'Office Desk', 647.86, 'Modern desk with storage drawers'),
+        productRecord(5, 'Garden Hose', 44.47, '50ft durable garden hose'),
+        productRecord(6, 'Smartphone Charger', 570.49, 'Fast-charging USB-C adapter'),
+        productRecord(1, 'Christmas Wreath', 906.62, 'Decorative wreath with pine cones'),
+        productRecord(1, 'Christmas Wreath', 211.7, 'Decorative wreath with pine cones'),
+        productRecord(1, 'LED String Lights', 492.83, 'Warm white lights for indoor use'),
+        productRecord(5, 'Garden Hose', 684.83, '50ft durable garden hose'),
+        productRecord(3, 'Wall Sconce', 543.72, 'Elegant wall-mounted light fixture'),
+        productRecord(1, 'LED String Lights', 685.25, 'Warm white lights for indoor use'),
+        productRecord(5, 'Outdoor Lantern', 656.08, 'Solar-powered lantern for patio'),
+        productRecord(3, 'Table Lamp', 686.15, 'Ceramic base lamp with fabric shade'),
+        productRecord(4, 'Memory Foam Pillow', 468.12, 'Ergonomic pillow for neck support'),
+        productRecord(3, 'Ceiling Pendant Light', 25.44, 'Modern pendant light with brass finish')
+    );
+    -- to add all the primary keys to its own "table"
+    TYPE prodSKU IS TABLE OF NUMBER;
+    prodSKUs prodSKU; -- each address ID into its own table of them all
+BEGIN
+    FORALL i IN 1..productsToAdd.COUNT -- for i in range from 1 to the amount of records to add
+        -- similar to simple insert-return statements
+        INSERT INTO Product (departmentID, productName, price, productDescription)
+        VALUES (productsToAdd(i).departmentID, productsToAdd(i).productName, productsToAdd(i).price, productsToAdd(i).productDescription)
+        RETURNING productSKU BULK COLLECT INTO prodSKUs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+
+DECLARE
+    TYPE deliveryProductRecord IS RECORD ( -- constructing record based on DeliveryProduct table collumns and types
+        productSKU NUMBER,
+        heightDimension FLOAT,
+        widthDimension FLOAT,
+        lengthDimension FLOAT
+    );
+    TYPE deliveryProductRecTable IS TABLE OF deliveryProductRecord; -- table of each row/record for del product
+    deliveryProductsToAdd deliveryProductRecTable := deliveryProductRecTable( -- records, to add into its table, the table then equals itself after inserting
+        -- all sample products generated using AI constructed from habitat.co.uk and
+        -- in constraints of "Department", and filling all paramaters for "Product",
+        deliveryProductRecord(3, 60, 12, 12),
+        deliveryProductRecord(4, 6, 3, 1),
+        deliveryProductRecord(6, 2, 2, 1),
+        deliveryProductRecord(8, 4, 4, 4),
+        deliveryProductRecord(11, 4, 4, 4),
+        deliveryProductRecord(12, 10, 8, 8),
+        deliveryProductRecord(16, 2, 12, 12),
+        deliveryProductRecord(17, 40, 24, 24),
+        deliveryProductRecord(18, 6, 6, 6),
+        deliveryProductRecord(19, 1, 14, 72),
+        deliveryProductRecord(24, 2, 10, 10),
+        deliveryProductRecord(25, 10, 6, 6),
+        deliveryProductRecord(29, 10, 10, 10),
+        deliveryProductRecord(30, 12, 8, 8),
+        deliveryProductRecord(31, 6, 3, 1),
+        deliveryProductRecord(32, 10, 8, 8),
+        deliveryProductRecord(33, 6, 18, 26),
+        deliveryProductRecord(35, 12, 12, 12),
+        deliveryProductRecord(37, 10, 10, 10),
+        deliveryProductRecord(39, 4, 12, 12),
+        deliveryProductRecord(40, 2, 2, 1),
+        deliveryProductRecord(41, 10, 10, 10),
+        deliveryProductRecord(42, 10, 10, 10),
+        deliveryProductRecord(43, 4, 4, 4),
+        deliveryProductRecord(44, 4, 12, 12),
+        deliveryProductRecord(45, 10, 6, 6),
+        deliveryProductRecord(46, 4, 4, 4),
+        deliveryProductRecord(47, 12, 8, 8),
+        deliveryProductRecord(48, 18, 10, 10),
+        deliveryProductRecord(49, 6, 18, 26),
+        deliveryProductRecord(50, 12, 12, 12)
+    );
+    -- to add all the primary keys to its own "table"
+    TYPE delProdSKU IS TABLE OF NUMBER;
+    delProdSKUs delProdSKU; -- each address ID into its own table of them all
+BEGIN
+    FORALL i IN 1..deliveryProductsToAdd.COUNT -- for i in range from 1 to the amount of records to add
+        -- similar to simple insert-return statements
+        INSERT INTO DeliveryProduct (productSKU, heightDimension, widthDimension, lengthDimension)
+        VALUES (deliveryProductsToAdd(i).productSKU, deliveryProductsToAdd(i).heightDimension, deliveryProductsToAdd(i).widthDimension, deliveryProductsToAdd(i).lengthDimension)
+        RETURNING productSKU BULK COLLECT INTO delProdSKUs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+
+-- collection product insert
+DECLARE
+    TYPE collectionProductRecord IS RECORD ( -- constructing record based on CollectionProduct table collumns and types
+        productSKU NUMBER,
+        "WEIGHT" FLOAT
+    );
+    TYPE collectionProductRecTable IS TABLE OF collectionProductRecord; -- table of each row/record for del product
+    collectionProductsToAdd collectionProductRecTable := collectionProductRecTable( -- records, to add into its table, the table then equals itself after inserting
+        -- all sample products generated using AI constructed from habitat.co.uk and
+        -- in constraints of "Department", and filling all paramaters for "Product",
+        collectionProductRecord(1, 30),
+        collectionProductRecord(2, 25),
+        collectionProductRecord(5, 15),
+        collectionProductRecord(7, 50),
+        collectionProductRecord(9, 35),
+        collectionProductRecord(10, 30),
+        collectionProductRecord(13, 25),
+        collectionProductRecord(14, 35),
+        collectionProductRecord(15, 20),
+        collectionProductRecord(20, 50),
+        collectionProductRecord(21, 25),
+        collectionProductRecord(22, 18),
+        collectionProductRecord(23, 40),
+        collectionProductRecord(26, 18),
+        collectionProductRecord(27, 25),
+        collectionProductRecord(28, 25),
+        collectionProductRecord(34, 50),
+        collectionProductRecord(36, 18),
+        collectionProductRecord(38, 30)
+    );
+        -- to add all the primary keys to its own "table"
+        TYPE colProdSKU IS TABLE OF NUMBER;
+        colProdSKUs colProdSKU; -- each address ID into its own table of them all
+    BEGIN
+        FORALL i IN 1..collectionProductsToAdd.COUNT -- for i in range from 1 to the amount of records to add
+            -- similar to simple insert-return statements
+            INSERT INTO CollectionProduct (productSKU, "WEIGHT")
+            VALUES (collectionProductsToAdd(i).productSKU, collectionProductsToAdd(i)."WEIGHT")
+            RETURNING productSKU BULK COLLECT INTO colProdSKUs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+
+-- supply data
+DECLARE
+    TYPE suppList IS TABLE OF NUMBER;
+    supplierIDs suppList;
+    storeNos suppList;
+    prodSKUs suppList;
+
+    rand NUMBER;
+BEGIN
+    -- Collect IDs
+    SELECT supplierID BULK COLLECT INTO supplierIDs FROM Supplier;
+    SELECT storeNo BULK COLLECT INTO storeNos FROM Store;
+    SELECT productSKU BULK COLLECT INTO prodSKUs FROM Product;
+
+    -- For each product, assign random suppliers and insert for all stores
+    FOR i IN 1..prodSKUs.COUNT LOOP
+        -- Pick 1 random supplier for this product
+        rand := supplierIDs(TRUNC(DBMS_RANDOM.VALUE(1, supplierIDs.COUNT + 1)));
+
+        FOR j IN 1..storeNos.COUNT LOOP
+            INSERT INTO Supply (supplierID, storeNo, productSKU)
+            VALUES (rand, storeNos(j), prodSKUs(i));
+        END LOOP;
+
+        -- Optionally: assign a second random supplier (if you want more than one)
+        IF DBMS_RANDOM.VALUE(0, 1) > 0.5 THEN
+            rand := supplierIDs(TRUNC(DBMS_RANDOM.VALUE(1, supplierIDs.COUNT + 1)));
+            FOR j IN 1..storeNos.COUNT LOOP
+                INSERT INTO Supply (supplierID, storeNo, productSKU)
+                VALUES (rand, storeNos(j), prodSKUs(i));
+            END LOOP;
+        END IF;
+    END LOOP;
+END;
+/
+
+
+-- product quantity on hand INSERTS
+DECLARE
+    TYPE pQOHRecord IS RECORD (
+        productSKU NUMBER,
+        storeNo NUMBER,
+        quantityOnHand NUMBER
+    );
+    TYPE pQOHRecTable IS TABLE OF pQOHRecord;
+    pQOHsToAdd pQOHRecTable := pQOHRecTable();
+
+    TYPE quants IS TABLE OF NUMBER;
+    quantList quants := quants(60, 2, 80, 100); -- random values I came up with to apply to products
+
+    prodSKUs quants;
+    storeNos quants;
+BEGIN
+    -- Collect real product SKUs and store IDs
+    SELECT productSKU BULK COLLECT INTO prodSKUs FROM Product;
+    SELECT storeNo BULK COLLECT INTO storeNos FROM Store;
+
+    -- Build the collection dynamically
+    FOR i IN 1..prodSKUs.COUNT LOOP
+        FOR j IN 1..storeNos.COUNT LOOP
+            pQOHsToAdd.EXTEND;
+            pQOHsToAdd(pQOHsToAdd.COUNT).productSKU := prodSKUs(i);
+            pQOHsToAdd(pQOHsToAdd.COUNT).storeNo := storeNos(j);
+            pQOHsToAdd(pQOHsToAdd.COUNT).quantityOnHand := quantList(j);
+        END LOOP;
+    END LOOP;
+
+    -- Bulk insert
+    FORALL i IN 1..pQOHsToAdd.COUNT
+        INSERT INTO ProductQuantityOnHand (productSKU, storeNo, quantityOnHand)
+        VALUES (pQOHsToAdd(i).productSKU, pQOHsToAdd(i).storeNo, pQOHsToAdd(i).quantityOnHand);
+    COMMIT;
+END;
+/
+
+-- payment information INSERTS
+DECLARE
+    TYPE paymentRecord IS RECORD ( -- constructing record based on Payment table collumns and types
+        longCardNo VARCHAR(19),
+        expiryDate DATE,
+        securityCode NUMBER(4)
+    );
+    TYPE paymentRecTable IS TABLE OF paymentRecord; -- table of each row/record for del product
+    paymentsToAdd paymentRecTable := paymentRecTable( -- records, to add into its table, the table then equals itself after inserting
+        paymentRecord('1234 5678 9101 1121', TO_DATE('09/27', 'MM/YY'), 123), -- 1
+        paymentRecord('3141 5161 7181 9202', TO_DATE('12/26', 'MM/YY'), 5456),
+        paymentRecord('1222 3242 5262 7282', TO_DATE('01/33', 'MM/YY'), 789),
+        paymentRecord('9303 1323 3343 5363', TO_DATE('08/27', 'MM/YY'), 101),
+        paymentRecord('7383 9404 1424 3444', TO_DATE('08/26', 'MM/YY'), 1312), -- 5
+        paymentRecord('5464 7484 9505 1525', TO_DATE('10/26', 'MM/YY'), 131),
+        paymentRecord('3545 5565 7585 9606', TO_DATE('11/28', 'MM/YY'), 4145), -- post this line is generated
+        paymentRecord('4812 3456 7890 1234', TO_DATE('03/29', 'MM/YY'), 2744),
+        paymentRecord('5678 9012 3456 7890', TO_DATE('07/30', 'MM/YY'), 3922),
+        paymentRecord('6789 0123 4567 8901', TO_DATE('05/28', 'MM/YY'), 583), -- 10
+        paymentRecord('7890 1234 5678 9012', TO_DATE('09/31', 'MM/YY'), 624),
+        paymentRecord('8901 2345 6789 0123', TO_DATE('12/27', 'MM/YY'), 7465),
+        paymentRecord('9012 3456 7890 1234', TO_DATE('06/29', 'MM/YY'), 8536),
+        paymentRecord('2345 6789 0123 4567', TO_DATE('04/32', 'MM/YY'), 9647),
+        paymentRecord('3456 7890 1234 5678', TO_DATE('11/30', 'MM/YY'), 178), -- 15
+        paymentRecord('4567 8901 2345 6789', TO_DATE('08/29', 'MM/YY'), 289),
+        paymentRecord('5678 9012 3456 7890', TO_DATE('02/31', 'MM/YY'), 3940),
+        paymentRecord('6789 0123 4567 8901', TO_DATE('10/28', 'MM/YY'), 491),
+        paymentRecord('7890 1234 5678 9012', TO_DATE('07/33', 'MM/YY'), 5962),
+        paymentRecord('8901 2345 6789 0123', TO_DATE('05/29', 'MM/YY'), 693) -- 20
+    );
+        -- to add all the primary keys to its own "table"
+        TYPE payID IS TABLE OF NUMBER;
+        payIDs payID; -- each address ID into its own table of them all
+    BEGIN
+        FORALL i IN 1..paymentsToAdd.COUNT -- for i in range from 1 to the amount of records to add
+            -- similar to simple insert-return statements
+            INSERT INTO Payment (longCardNo, expiryDate, securityCode)
+            VALUES (paymentsToAdd(i).longCardNo, paymentsToAdd(i).expiryDate, paymentsToAdd(i).securityCode)
+            RETURNING paymentID BULK COLLECT INTO payIDs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+
+-- order data
+DECLARE
+    TYPE orderRecord IS RECORD ( -- constructing record based on Payment table collumns and types
+        billingAddressID NUMBER,
+        customerID NUMBER,
+        totalPrice NUMBER
+    );
+    TYPE orderRecTable IS TABLE OF orderRecord; -- table of each row/record for del product
+    ordersToAdd orderRecTable := orderRecTable( -- records, to add into its table, the table then equals itself after inserting
+        -- using ten random items per order to generate prices (random sequence generator used to make randnom collections of products for proof of concept)
+        -- randomised collection order examples -- item numbers
+        orderRecord(5, 1, 3110.74), -- 20, 36, 15, 21
+        orderRecord(6, 2, 2221.15), -- 28, 36, 21
+        orderRecord(7, 3, 2789.8), -- 20, 15, 26
+
+        -- randomised delivery order examples -- item numbers
+        orderRecord(11, 5, 1750.00), -- 40, 8, 3, 43, 18, 17
+        orderRecord(13, 10, 318.00), -- 11, 49, 35, 6
+        orderRecord(14, 13, 362.00), -- 37, 4, 33, 42
+        orderRecord(15, 4, 456.00) -- 50, 19, 32, 25, 29
+    );
+        -- to add all the primary keys to its own "table"
+        TYPE ordID IS TABLE OF NUMBER;
+        ordIDs ordID; -- each address ID into its own table of them all
+    BEGIN
+        FORALL i IN 1..ordersToAdd.COUNT -- for i in range from 1 to the amount of records to add
+            -- similar to simple insert-return statements
+            INSERT INTO "Order" (billingAddressID, customerID, totalPrice)
+            VALUES (ordersToAdd(i).billingAddressID, ordersToAdd(i).customerID, ordersToAdd(i).totalPrice)
+            RETURNING orderNo BULK COLLECT INTO ordIDs; -- bulk collect of IDs into varible table of IDs
+END;
+/
+
+-- collection order split
+BEGIN
+    INSERT INTO CollectionOrder (collectionOrderNo, storeNo, employeeNo, totalWeightKG, collectionArrangement)
+    VALUES (1, 1, 7, 325, 'Meet in store to confirm order, assist loading into vehicle.');
+    INSERT INTO CollectionOrder (collectionOrderNo, storeNo, employeeNo, totalWeightKG, collectionArrangement)
+    VALUES (2, 2, 10, 147, 'Hand over to customer in store, theyll use own equipment to load.');
+    INSERT INTO CollectionOrder (collectionOrderNo, storeNo, employeeNo, totalWeightKG, collectionArrangement)
+    VALUES (3, 2, 15, 163, 'N/A');
+END;
+/
+
+
+-- delivery order spilt
+BEGIN
+    INSERT INTO DeliveryOrder (deliveryOrderNo, deliveryAddressID, storeNo, employeeNo, totalWidthIN, totalHeightIN, totalLengthIN)
+    VALUES (4, 12, 1, 4, 5272, 1752, 1750);
+    INSERT INTO DeliveryOrder (deliveryOrderNo, deliveryAddressID, storeNo, employeeNo, totalWidthIN, totalHeightIN, totalLengthIN)
+    VALUES (5, 12, 2, 9, 200, 272, 318); 
+    INSERT INTO DeliveryOrder (deliveryOrderNo, deliveryAddressID, storeNo, employeeNo, totalWidthIN, totalHeightIN, totalLengthIN)
+    VALUES (6, 13, 3, 23, 272, 326, 362); 
+    INSERT INTO DeliveryOrder (deliveryOrderNo, deliveryAddressID, storeNo, employeeNo, totalWidthIN, totalHeightIN, totalLengthIN)
+    VALUES (7, 15, 4, 32, 445, 398, 456); 
+END;
+/
+
+
+BEGIN
+    -- COLLECTION
+    -- 1
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (1, 20, 1);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (1, 36, 10);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (1, 15, 1);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (1, 21, 1);
+
+    -- 2
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (2, 28, 2);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (2, 36, 4);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (2, 21, 1);
+
+    -- 3
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (3, 20, 2);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (3, 15, 1);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (3, 26, 1);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (3, 21, 1);
+
+    -- DELIVERY
+    -- 1
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 40, 2);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 8, 4);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 3, 60);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 43, 4);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 18, 6);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 17, 40);
+
+    -- 2
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 11, 4);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 49, 6);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 35, 12);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 6, 2);
+
+    -- 3
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 37, 10);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 4, 6);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 33, 6);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 42, 10);
+
+    -- 4
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 50, 12);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 19, 1);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 32, 10);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 25, 10);
+    INSERT INTO ProductQuantity (orderNo, productSKU, productQuantity)
+    VALUES (4, 29, 10);
+END;
+/
+
+
+BEGIN
+    -- orderNo#
+    -- 1
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (1, 3, TO_DATE('27/09/2025', 'DD/MM/YYYY'), TO_DATE('27/09/2025', 'DD/MM/YYYY'));
+
+    -- 2
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (2, 12, TO_DATE('05/12/2025', 'DD/MM/YYYY'), TO_DATE('11/12/2025', 'DD/MM/YYYY'));
+
+    -- 3
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (3, 20, TO_DATE('17/07/2025', 'DD/MM/YYYY'), TO_DATE('17/07/2025', 'DD/MM/YYYY'));
+
+    -- 4
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (4, 1, TO_DATE('01/01/2000', 'DD/MM/YYYY'), Null);
+
+    -- 5
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (5, 7, TO_DATE('12/05/2017', 'DD/MM/YYYY'), Null);
+
+    -- 6
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (6, 2, TO_DATE('25/11/2025', 'DD/MM/YYYY'), TO_DATE('25/12/2025', 'DD/MM/YYYY'));
+
+    -- 7
+    INSERT INTO Invoice (orderNo, paymentID, orderDate, datePaid)
+    VALUES (7, 19, TO_DATE('01/12/2025', 'DD/MM/YYYY'), TO_DATE('01/12/2025', 'DD/MM/YYYY'));
+END;
+/
+
+
+COMMIT;
