@@ -1,9 +1,53 @@
--- Copyright (c) 2025 Oakleigh Davies. All rights reserved.
+-- Copyright (C) 2025 Oakleigh Davies.
+-- Copyright (C), only applies in the case of the work produced not referenced or influenced by those included below, intellectual or copyrighted property rights may still apply.
 
--- This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
--- "This work", this ONLY applies to the work not referenced in any way, and solely created by the copyright holder. Referenced work is referenced below, respective licensing and rights reserved by the indeviduals/companies respectively.
--- You should have received a copy of the license along with this work. 
--- If not, see <https://creativecommons.org/licenses/by-nc/4.0/>.
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org>.
+
+
+-------------------------------------------------------------------------------
+-- REFERENCES & ACKNOWLEDGEMENTS
+-------------------------------------------------------------------------------
+-- This software was developed by Oakleigh Davies for academic purposes.
+-- While the software implementation is the property of the author, it 
+-- references and incorporates concepts from the following proprietary 
+-- materials which remain the property of their respective owners:
+
+-- [INSTITUTIONAL]
+-- Logic for Foreign & Primary Keys derived from Keele University lecture 
+-- materials. Copyright (c) Keele University. All rights reserved.
+
+-- [TEXTBOOK]
+-- UNIQUE constraints: Connolly, T. (2015) 'Database Systems: A Practical 
+-- Approach to Design, Implementation, and Management', 6th Ed., Chapter 7, 
+-- p. 242. Pearson Education UK. [Accessed 26 Nov 2025 via ProQuest].
+
+-- [OFFICIAL DOCUMENTATION]
+-- GENERATED ALWAYS AS IDENTITY: Oracle Database SQL Language Reference.
+-- REGEXP_LIKE Pattern Matching: Oracle Database 19c SQL Language Reference,
+-- "Pattern-matching Conditions" & "Perl-influenced Extensions".
+-- URL: https://docs.oracle.com
+
+-- [COMMUNITY SOURCES]
+-- Oracle Number Validation: "Checking the Input value is Number or not 
+-- in Oracle", Stack Overflow (26 Nov 2025).
+-- URL: https://stackoverflow.com
+
+-- Email Regex Validation: "What characters are allowed in an email address?", 
+-- Stack Overflow (Apr 2024).
+-- URL: https://stackoverflow.com
+-------------------------------------------------------------------------------
+
 
 BEGIN
    FOR t IN (SELECT table_name FROM user_tables) LOOP
@@ -11,15 +55,6 @@ BEGIN
    END LOOP;
 END;
 /
-
--- foreign & primary key from lecture slides
--- UNIQUE from the essentials textbook reading - page 242 chapter 7 - Thomas Connolly - PUBLISHER Pearson Education UK - 2015-01-12 - eidition 6 - 2025 Nov 26 - https://ebookcentral.proquest.com/lib/keeleuni/reader.action?docID=5136720&c=UERG&ppg=244
--- GENERATED ALWAYS AS IDENTITY from ...
--- REGEXP_LIKE from stck overflow - 26 Nov 2025 - Checking the Input value is Number or not in oracle - https://stackoverflow.com/questions/75317632/checking-the-input-value-is-number-or-not-in-oracle
---                                -      ""     - SQL Language Reference - Pattern-matching Conditions - https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19
---                                -      ""     -           ""           - Multilingual Regular Expression Syntax - https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Pattern-matching-Conditions.html#GUID-D2124F3A-C6E4-4CCA-A40E-2FFCABFD8E19
---                                -      ""     -           ""           - Perl-influenced Extensions in Oracle Regular Expressions - https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Perl-influenced-Extensions-in-Oracle-Regular-Expressions.html
---                                -      ""     - Apr 2024 -     Stack Overflow     - What characters are allowed in an email address? - https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address
 
 CREATE TABLE Addressing
 (
